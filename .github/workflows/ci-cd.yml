@@ -1,0 +1,74 @@
+# This is a basic workflow that is manually triggered
+
+name: Auto Pull and Rebuild
+
+# Controls when the action will run. Workflow runs when manually triggered using the UI
+# or API.
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "greet"
+  transaksi_runner_syntxr:
+    # The type of runner that the job will run on
+    runs-on: [transaksi_runner_syntxr]
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    # Runs a single command using the runners shell
+    - name: set project path
+      run: |
+        PROJECT_PATH=$(find /home -name 'transaksi-syntxr' -type d -not -path '*/transaksi-runner/*' 2>/dev/null | head -1)
+        if [ -z "$PROJECT_PATH" ]; then
+          echo "❌ Error: Folder transaksi-syntxr tidak ditemukan di /home"
+          echo "Pastikan project sudah di-clone ke salah satu user directory"
+          exit 1
+        fi
+        echo "PROJECT_PATH=$PROJECT_PATH" >> $GITHUB_ENV
+        echo "✅ Found project at: $PROJECT_PATH"
+
+    - name: Pull latest changes
+      working-directory: ${{ env.PROJECT_PATH }}
+      run: |
+        git remote set-url origin https://github.com/korehitone/transaksi-syntxr.git
+        git fetch origin main      # Download update terbaru
+        git reset --hard origin/main
+
+    - name: Stop existing containers
+      working-directory: ${{ env.PROJECT_PATH }}
+      run: |
+        docker compose down || true
+
+    - name: Remove old images
+      working-directory: ${{ env.PROJECT_PATH }}
+      run: |
+        docker system prune -f    # Hapus container/network yang tidak terpakai
+        docker image prune -a -f
+
+    - name: Build and start containers
+      working-directory: ${{ env.PROJECT_PATH }}
+      run: |
+        docker compose build --no-cache  # Build image baru tanpa cache
+        docker compose up -d 
+
+    - name: Wait for services to be ready
+      working-directory: ${{ env.PROJECT_PATH }}
+      run: |
+        sleep 30                # Tunggu 30 detik
+        docker compose ps
+
+    - name: Health check
+      run: |
+        curl -f http://localhost:8080 || exit 1
+
+    - name: Notify deployment status
+      if: always()  # Selalu jalankan step ini (sukses atau gagal)
+      run: |
+        if [ ${{ job.status }} == 'success' ]; then
+          echo "✅ Deployment berhasil di transaksi_runner_syntxr! Aplikasi sudah update ke versi terbaru"
+        else
+          echo "❌ Deployment gagal di transaksi_runner_syntxr! Cek log error di atas"
+        fi
