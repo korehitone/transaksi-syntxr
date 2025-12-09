@@ -17,7 +17,7 @@ public class Barang {
     private Integer stok;
 
     @Column(name = "harga")
-    private Integer harga;
+    private Double harga;
 
     @Column(name = "persen_laba")
     private Double persenLaba;
