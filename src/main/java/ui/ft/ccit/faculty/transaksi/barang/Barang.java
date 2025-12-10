@@ -14,7 +14,7 @@ public class Barang {
     private String nama;
 
     @Column(name = "stok")
-    private int stok;
+    private Short stok;
 
     @Column(name = "harga")
     private Double harga;
@@ -35,7 +35,7 @@ public class Barang {
         // for JPA
     }
 
-    public Barang(String idBarang, String nama, int stok, Double harga,
+    public Barang(String idBarang, String nama, Short stok, Double harga,
             Double persenLaba, Double diskon,
             Byte idJenisBarang, String idPemasok) {
         this.idBarang = idBarang;
@@ -66,11 +66,11 @@ public class Barang {
         this.nama = nama;
     }
 
-    public int getStok() {
+    public Short getStok() {
         return stok;
     }
 
-    public void setStok(int stok) {
+    public void setStok(Short stok) {
         this.stok = stok;
     }
 
