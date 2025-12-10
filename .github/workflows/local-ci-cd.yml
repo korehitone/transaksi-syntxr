@@ -7,8 +7,8 @@ name: Auto Pull and Rebuild
 on:
   push:
     branches:
-      - main
-      - master
+      # - main
+      # - master
       - test
   workflow_dispatch:
 
@@ -38,8 +38,8 @@ jobs:
       working-directory: ${{ env.PROJECT_PATH }}
       run: | #ganti orl origin make repo github yang dipake
         git remote set-url origin https://github.com/korehitone/transaksi-syntxr.git
-        git fetch origin main      # Download update terbaru
-        git reset --hard origin/main
+        git fetch origin test     # Download update terbaru
+        git reset --hard origin/test
 
     - name: Stop existing containers
       working-directory: ${{ env.PROJECT_PATH }}
