@@ -9,6 +9,7 @@ on:
     branches:
       - main
       - master
+      - test
   workflow_dispatch:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
@@ -21,6 +22,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     # Runs a single command using the runners shell
+    # ganti "transaksi-syntxr" dengan nama project local, ganti "transaksi-runner" dengan nama folder action runner
     - name: set project path
       run: |
         PROJECT_PATH=$(find /home -name 'transaksi-syntxr' -type d -not -path '*/transaksi-runner/*' 2>/dev/null | head -1)
@@ -34,7 +36,7 @@ jobs:
 
     - name: Pull latest changes
       working-directory: ${{ env.PROJECT_PATH }}
-      run: |
+      run: | #ganti orl origin make repo github yang dipake
         git remote set-url origin https://github.com/korehitone/transaksi-syntxr.git
         git fetch origin main      # Download update terbaru
         git reset --hard origin/main
